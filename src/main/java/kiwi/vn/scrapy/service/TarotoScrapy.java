@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.stream.events.StartDocument;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -32,6 +34,7 @@ public class TarotoScrapy extends ScrapyAbstract {
 		for (String categoryURLLv1 : allCategoriesURLLv1) {
 			try {
 				findAllItems(categoryURLLv1);
+				System.out.println(allItmes.size());
 			} catch (IOException e) {
 				continue;
 			}
@@ -40,11 +43,14 @@ public class TarotoScrapy extends ScrapyAbstract {
 	}
 
 	private List<String> allItmes = new ArrayList<String>();
-
-	private void findAllItems(String categoryURLLv1) throws IOException {
-		Document doc = getDoc(categoryURLLv1);
+    private List<String> listCateIgnore = new ArrayList<String>();
+	
+    private void findAllItems(String categoryURLLv1) throws IOException {
+		System.out.println("Start with Url:" + categoryURLLv1);
+    	Document doc = getDoc(categoryURLLv1);
 		Elements els = doc.select("div>table>tbody>tr>td table:eq(3) td:eq(1) table td>a:has(img,font)");
-		if (els.first().attr("href").contains("/item/")) {
+		reBuildListCatIgnore(doc);
+		if (els.size()!=0 && els.first().attr("href").contains("/item/")) {
 			for (Element element : els) {
 				allItmes.add(getItemLink(element.attr("href")));
 			}
@@ -60,18 +66,29 @@ public class TarotoScrapy extends ScrapyAbstract {
 		}
 	}
 
+	private void reBuildListCatIgnore(Document doc) {
+		Elements els =doc.select("div>table>tbody>tr>td table:eq(3) td[width=200] table td>a:has(img,font)");
+		for (Element element : els) {
+			String linkCat = element.attr("href");	
+			if(linkCat.contains("http://www.taroto.jp/category/") && !isInList(linkCat ,listCateIgnore)  ){
+				listCateIgnore.add(linkCat);
+			}
+		}
+		
+	}
+
 	private List<String> getListCatCurrent(Elements els) {
 		List<String> listCat = new ArrayList<String>();
 		for (Element element : els) {
 			String linkCat = element.attr("href");	
-			if(linkCat.contains("http://www.taroto.jp/category/") && !isInListCat(linkCat ,listCat) ){
+			if(linkCat.contains("http://www.taroto.jp/category/") && !isInList(linkCat ,listCat) && !isInList(linkCat, listCateIgnore)){
 				listCat.add(linkCat);
 			}
 		}
 		return listCat;
 	}
 
-	private boolean isInListCat(String linkCat, List<String> listCat) {
+	private boolean isInList(String linkCat, List<String> listCat) {
 		for (String cat : listCat) {
 			if(cat.equals(linkCat))
 				return true;
