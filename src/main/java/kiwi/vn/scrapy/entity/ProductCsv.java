@@ -224,4 +224,48 @@ public class ProductCsv {
 	public void setCategory(String category) {
 		this.category = category;
 	}
+	
+	/**
+	 * Instantiates a new product csv.
+	 *
+	 * @param siteName the site name
+	 * @param product the product
+	 * @param productModel the product model
+	 * @param description the description
+	 * @param price the price
+	 * @param quantity the quantity
+	 * @param dateCreate the date create
+	 * @param productUrl the product url
+	 * @param moreInfo the more info
+	 */
+	public ProductCsv(String siteName, String product, String productModel, String description, double price,
+			int quantity, String dateCreate, String productUrl, String moreInfo) {
+		super();
+		this.siteName = siteName;
+		this.product = product;
+		this.productModel = productModel;
+		this.description = description;
+		this.price = price;
+		this.quantity = quantity;
+		this.dateCreate = dateCreate;
+		this.productUrl = productUrl;
+		this.moreInfo = moreInfo;
+	}
+	
+	/**
+	 * To CSV.
+	 *
+	 * @return the string[]
+	 */
+	public String[] toCSV(){
+		return new String[]{siteName 
+			  , product 
+			  , productModel 
+			  , description 
+			  , price + ""
+			  , (quantity < 0 ?  "" : quantity + "")
+			  , (dateCreate == null ? "": dateCreate) 
+			  , productUrl 
+			  , (moreInfo == null ? "": moreInfo)};
+	}
 }
