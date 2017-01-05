@@ -43,25 +43,40 @@ public class TarotoScrapy extends ScrapyAbstract {
 
 	private void findAllItems(String categoryURLLv1) throws IOException {
 		Document doc = getDoc(categoryURLLv1);
-		Elements els = doc.select("div>table>tbody>tr>td table:eq(3) td:eq(1) table td>a:has(img)");
+		Elements els = doc.select("div>table>tbody>tr>td table:eq(3) td:eq(1) table td>a:has(img,font)");
 		if (els.first().attr("href").contains("/item/")) {
 			for (Element element : els) {
 				allItmes.add(getItemLink(element.attr("href")));
 			}
 		} else {
 			try {
-
-				for (Element element : els) {
-					String linkCat = element.attr("href");	
-					if(linkCat.contains("http://www.taroto.jp/category/")){
-						findAllItems(linkCat);
-					}
-					
+				List<String> listCat = getListCatCurrent(els);
+				for (String cat : listCat) {
+					findAllItems(cat);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private List<String> getListCatCurrent(Elements els) {
+		List<String> listCat = new ArrayList<String>();
+		for (Element element : els) {
+			String linkCat = element.attr("href");	
+			if(linkCat.contains("http://www.taroto.jp/category/") && !isInListCat(linkCat ,listCat) ){
+				listCat.add(linkCat);
+			}
+		}
+		return listCat;
+	}
+
+	private boolean isInListCat(String linkCat, List<String> listCat) {
+		for (String cat : listCat) {
+			if(cat.equals(linkCat))
+				return true;
+		}
+		return false;
 	}
 
 	private String getItemLink(String attr) {
