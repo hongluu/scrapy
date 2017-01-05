@@ -44,5 +44,8 @@ public class RunableCustom implements Runnable{
 	public void setSrapy(ScrapyAbstract srapy) {
 		this.srapy = srapy;
 	}
+	public boolean isRunning (){
+		return thread.isAlive();
+	}
 
 }

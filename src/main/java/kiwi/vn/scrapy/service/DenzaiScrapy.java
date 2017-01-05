@@ -15,6 +15,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
 
 /**
@@ -33,6 +35,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	
 	/** The Constant HOME_PAGE. */
 	private static final String HOME_PAGE = "www.denzai-net.jp";
+	private static final int MAX_THREAD =100;
 
 	/**
 	 * Instantiates a new denzai scrapy.
@@ -52,16 +55,46 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 *
 	 * @return the all item
 	 */
+	private int count =0;
+	private int totalPage = 100;
 	public List<ProductCsv> getAllItem() {
 		List<ProductCsv> output = new ArrayList<ProductCsv>();
-		int totalPage = 0;
-		try {
-			totalPage= getTotalPageLink(LINK_ALL_PRODUCTS + 1);
-		} catch (IOException e) {
-			log.debug(e.getMessage());
-		}
 		
-		for (int i = 1; i < totalPage; i++) {
+			long startTime = System.currentTimeMillis();
+			try {
+				totalPage= getTotalPageLink(LINK_ALL_PRODUCTS + 1);
+				System.out.println(totalPage);
+				totalPage =100;
+			} catch (IOException e) {
+				log.debug(e.getMessage());
+			}
+			List<RunableCustom> listRun= new ArrayList<RunableCustom>();
+			for (int ii = 0; ii < MAX_THREAD; ii++) {
+				listRun.add(new RunableCustom(output, this,ii*(totalPage/MAX_THREAD),(ii+1)*(totalPage/MAX_THREAD)));
+				listRun.get(ii).start();
+			}
+			
+			while(true){	
+				if(isAllThreadDone(listRun)){
+					System.out.println(System.currentTimeMillis()-startTime);
+					System.out.println("========================================"+output.size());
+					return output;
+				}
+			}
+			
+	}
+	private boolean isAllThreadDone(List<RunableCustom> listRun) {
+		for (RunableCustom runableCustom : listRun) {
+			if (runableCustom.isRunning()) {
+				return false;
+			}
+		}
+		return true;
+	}
+	@Override
+	public List<ProductCsv> getAllItem(int start, int end) {
+		List<ProductCsv> output = new ArrayList<ProductCsv>();
+		for (int i = start+1; i <= end; i++) {
 			try {
 			output.addAll(getAllItemsPerPage(LINK_ALL_PRODUCTS + i));
 			} catch (Exception e) {
@@ -72,7 +105,6 @@ public class DenzaiScrapy extends ScrapyAbstract {
 		
 		return output;
 	}
-
 	/**
 	 * Gets the all items per page.
 	 *
@@ -81,6 +113,8 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	private List<ProductCsv> getAllItemsPerPage(String url) throws IOException {
+		System.out.println(url);
+		this.count++;
 		List<ProductCsv> listItems = new ArrayList<ProductCsv>();
 		Document doc = getDynamicDoc(url);
 		Elements els = doc.select(".item_listA form");
@@ -89,6 +123,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 				listItems.add(getProduct(element));
 			}
 		}
+		
 		return listItems;
 	}
 
@@ -148,10 +183,6 @@ public class DenzaiScrapy extends ScrapyAbstract {
 		return Jsoup.parse(json.getString("html"));
 	}
 
-	@Override
-	public List<? extends ProductCsv> getAllItem(int start, int end) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 }

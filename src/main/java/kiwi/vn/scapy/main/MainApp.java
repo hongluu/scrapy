@@ -5,7 +5,7 @@ import kiwi.vn.scrapy.service.TarotoScrapy;
 
 public class MainApp {
 	public static void main(String[] args) {
-		TarotoScrapy denzaiScrapy = new TarotoScrapy();
+		DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
 		denzaiScrapy.processPage();
 	}
 }
