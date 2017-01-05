@@ -66,4 +66,6 @@ public abstract class ScrapyAbstract {
 	public void setPageUrl(String pageUrl) {
 		this.pageUrl = pageUrl;
 	}
+	public abstract List<? extends ProductCsv> getAllItem(int start, int end) ;
+
 }

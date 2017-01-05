@@ -52,7 +52,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 *
 	 * @return the all item
 	 */
-	protected List<ProductCsv> getAllItem() {
+	public List<ProductCsv> getAllItem() {
 		List<ProductCsv> output = new ArrayList<ProductCsv>();
 		int totalPage = 0;
 		try {
@@ -146,6 +146,12 @@ public class DenzaiScrapy extends ScrapyAbstract {
 		JSONObject json = new JSONObject(responseString.toString());
 
 		return Jsoup.parse(json.getString("html"));
+	}
+
+	@Override
+	public List<? extends ProductCsv> getAllItem(int start, int end) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
