@@ -19,7 +19,7 @@ import kiwi.vn.scapy.main.ProgressDialog;
 import kiwi.vn.scrapy.entity.ProductCsv;
 
 
-public class MonotaroScrapy {
+public class MonotaroScrapy extends ScrapyAbstract{
 	private static ProgressDialog progressDlg = new ProgressDialog();
 
 
@@ -123,5 +123,49 @@ public class MonotaroScrapy {
 		}
 		
 		return ret;
+	}
+
+	public void setListProductCodePrepare(List<ProductCsv> listdenzai, List<ProductCsv> listtaroto) {
+		List<String> output = new ArrayList<String>();
+		listdenzai.forEach(x -> output.add(x.getProductModel()));
+		for (ProductCsv productCsv : listtaroto) {
+			String productCode = productCsv.getProductModel();
+			if(!isInList(productCode, output)){
+				output.add(productCode);
+			}
+		}
+		
+	}
+	private boolean isInList(String productCode, List<String> output) {
+		if(productCode == null){
+			return false;
+		}
+		for (String string : output) {
+			if(productCode.equals(string)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public List<String> getListProductCodePrepare(List<ProductCsv> listdenzai, List<ProductCsv> listtaroto) {
+		return null;
+	}
+
+	public List<ProductCsv> processPage() {
+		
+		return null;
+	}
+
+	@Override
+	protected List<ProductCsv> getAllItem() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<? extends ProductCsv> getAllItem(int start, int end) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

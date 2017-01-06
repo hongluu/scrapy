@@ -4,15 +4,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
+import kiwi.vn.srapy.utils.FileUtils;
 
 public class TarotoScrapy extends ScrapyAbstract {
-	private static final String ALL_ITEM_LINK = "http://www.taroto.jp/item/";
-	private static final int MAX_THREAD = 3;
-	private static final int MAX_TOTAL_LINK = 300000;
-
+	private static final int MAX_THREAD = 5;
+	private static final String SITE_MAP = "http://www.taroto.jp/sitemap.xml";
+	private List<String> allLink;
+	//private static final String FILE_LINK = "itemTaro.txt";
 	public TarotoScrapy() {
 		this.log.debug("Start scrapy with taroto.jp page");
 		this.pageUrl = "http://www.taroto.jp";
@@ -23,10 +26,16 @@ public class TarotoScrapy extends ScrapyAbstract {
 	protected List<ProductCsv> getAllItem() {
 		long startTime = System.currentTimeMillis();
 		List<ProductCsv> allProducts = new ArrayList<ProductCsv>();
+		this.allLink = getAllLinkFromSiteMap(SITE_MAP);
+		//this.allLink = FileUtils.getListLinkFromFile(TarotoScrapy.class.getClassLoader().getResource(FILE_LINK).getFile());
+		int numOfTotalLink =allLink.size();
 		List<RunableCustom> listRun= new ArrayList<RunableCustom>();
 		for (int ii = 0; ii < MAX_THREAD; ii++) {
-			listRun.add(new RunableCustom(allProducts, this,ii*(MAX_TOTAL_LINK/MAX_THREAD),(ii+1)*(MAX_TOTAL_LINK/MAX_THREAD)));
-			listRun.get(ii).start();
+			if(ii == MAX_THREAD-1){
+				listRun.add(new RunableCustom(allProducts, this,ii*(numOfTotalLink/MAX_THREAD),numOfTotalLink));
+			}else{
+				listRun.add(new RunableCustom(allProducts, this,ii*(numOfTotalLink/MAX_THREAD),(ii+1)*(numOfTotalLink/MAX_THREAD)));
+			}
 		}
 		while(true){	
 			if(isAllThreadDone(listRun)){
@@ -35,6 +44,21 @@ public class TarotoScrapy extends ScrapyAbstract {
 				return allProducts;
 			}
 		}
+	}
+
+	private List<String> getAllLinkFromSiteMap(String url) {
+		List<String> output = new ArrayList<String>();
+		try {
+			Document doc = getDoc(url);
+			Elements AllLink = doc.select("loc");
+			for (Element element : AllLink) {
+				if(element.text().contains("/item/"))
+				output.add(element.text());
+			}
+		} catch (IOException e) {
+			return output ;
+		}
+		return output;
 	}
 
 	@Override
@@ -59,7 +83,7 @@ public class TarotoScrapy extends ScrapyAbstract {
 //	}
 
 	private String getItemLink(int i) {
-		return ALL_ITEM_LINK + i + ".html";
+		return allLink.get(i);
 	}
 
 	private synchronized ProductCsv getProductPerLink(Document doc) throws IOException {

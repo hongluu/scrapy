@@ -35,7 +35,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	
 	/** The Constant HOME_PAGE. */
 	private static final String HOME_PAGE = "www.denzai-net.jp";
-	private static final int MAX_THREAD =10;
+	private static final int MAX_THREAD =30;
 
 	/**
 	 * Instantiates a new denzai scrapy.
@@ -62,14 +62,18 @@ public class DenzaiScrapy extends ScrapyAbstract {
 			long startTime = System.currentTimeMillis();
 			try {
 				totalPage= getTotalPageLink(LINK_ALL_PRODUCTS + 1);
+				totalPage=100;
 				System.out.println(totalPage);
-				//totalPage=10;
 			} catch (IOException e) {
 				log.debug(e.getMessage());
 			}
 			List<RunableCustom> listRun= new ArrayList<RunableCustom>();
 			for (int ii = 0; ii < MAX_THREAD; ii++) {
-				listRun.add(new RunableCustom(output, this,ii*(totalPage/MAX_THREAD),(ii+1)*(totalPage/MAX_THREAD)));
+				if(ii == MAX_THREAD-1){
+					listRun.add(new RunableCustom(output, this,ii*(totalPage/MAX_THREAD),totalPage));
+				}else{
+					listRun.add(new RunableCustom(output, this,ii*(totalPage/MAX_THREAD),(ii+1)*(totalPage/MAX_THREAD)));
+				}
 				listRun.get(ii).start();
 			}
 			
@@ -123,18 +127,18 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 * @param element the element
 	 * @return the product
 	 */
-	private ProductCsv getProduct(Element element) {
+	private synchronized ProductCsv getProduct(Element element) {
 		ProductCsv product = new ProductCsv(HOME_PAGE);
-		product.setPrice(Integer.parseInt(element.getElementsByAttributeValue("name", "price").val()));
-		product.setProductModel(element.getElementsByAttributeValue("name", "code").val());
-		product.setProduct(
-				product.getProductModel() + "|" + element.getElementsByAttributeValue("name", "shohin").val());
-		product.setQuantity(Integer.parseInt(element.getElementsByAttributeValue("name", "kazu").val()));
-		product.setProductUrl(element.getElementsByAttributeValue("name", "item_url").val());
-		product.setDescription(element.select("table tr:eq(3)").html());
-		product.setMoreInfo(element.select(".piece_text").text());
-		product.setCategory(element.select("table td:eq(3)").text());
-		return product;
+			product.setPrice(Integer.parseInt(element.getElementsByAttributeValue("name", "price").val()));
+			product.setProductModel(element.getElementsByAttributeValue("name", "code").val());
+			product.setProduct(
+					product.getProductModel() + "|" + element.getElementsByAttributeValue("name", "shohin").val());
+			product.setQuantity(Integer.parseInt(element.getElementsByAttributeValue("name", "kazu").val()));
+			product.setProductUrl(element.getElementsByAttributeValue("name", "item_url").val());
+			product.setDescription(element.select("table tr:eq(3)").html());
+			product.setMoreInfo(element.select(".piece_text").text());
+			product.setCategory(element.select("table td:eq(3)").text());
+			return product;
 	}
 
 	/**
