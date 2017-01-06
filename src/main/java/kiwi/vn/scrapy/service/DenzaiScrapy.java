@@ -35,7 +35,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	
 	/** The Constant HOME_PAGE. */
 	private static final String HOME_PAGE = "www.denzai-net.jp";
-	private static final int MAX_THREAD =100;
+	private static final int MAX_THREAD =10;
 
 	/**
 	 * Instantiates a new denzai scrapy.
@@ -55,16 +55,15 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 *
 	 * @return the all item
 	 */
-	private int count =0;
-	private int totalPage = 100;
+	
 	public List<ProductCsv> getAllItem() {
 		List<ProductCsv> output = new ArrayList<ProductCsv>();
-		
+		    int totalPage = 0;
 			long startTime = System.currentTimeMillis();
 			try {
 				totalPage= getTotalPageLink(LINK_ALL_PRODUCTS + 1);
 				System.out.println(totalPage);
-				totalPage =100;
+				//totalPage=10;
 			} catch (IOException e) {
 				log.debug(e.getMessage());
 			}
@@ -76,20 +75,12 @@ public class DenzaiScrapy extends ScrapyAbstract {
 			
 			while(true){	
 				if(isAllThreadDone(listRun)){
-					System.out.println(System.currentTimeMillis()-startTime);
-					System.out.println("========================================"+output.size());
+					System.out.println("=====COMPLETE IN ====== :"+(System.currentTimeMillis()-startTime)/1000 + " s");
+					System.out.println("=====    TOTAL   ====== :"+output.size() +"item");
 					return output;
 				}
 			}
 			
-	}
-	private boolean isAllThreadDone(List<RunableCustom> listRun) {
-		for (RunableCustom runableCustom : listRun) {
-			if (runableCustom.isRunning()) {
-				return false;
-			}
-		}
-		return true;
 	}
 	@Override
 	public List<ProductCsv> getAllItem(int start, int end) {
@@ -114,7 +105,6 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 */
 	private List<ProductCsv> getAllItemsPerPage(String url) throws IOException {
 		System.out.println(url);
-		this.count++;
 		List<ProductCsv> listItems = new ArrayList<ProductCsv>();
 		Document doc = getDynamicDoc(url);
 		Elements els = doc.select(".item_listA form");

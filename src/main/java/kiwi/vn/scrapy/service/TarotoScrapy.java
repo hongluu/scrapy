@@ -21,11 +21,20 @@ public class TarotoScrapy extends ScrapyAbstract {
 
 	@Override
 	protected List<ProductCsv> getAllItem() {
+		long startTime = System.currentTimeMillis();
 		List<ProductCsv> allProducts = new ArrayList<ProductCsv>();
+		List<RunableCustom> listRun= new ArrayList<RunableCustom>();
 		for (int ii = 0; ii < MAX_THREAD; ii++) {
-			new RunableCustom(allProducts, this,ii*(MAX_TOTAL_LINK/MAX_THREAD),(ii+1)*(MAX_TOTAL_LINK/MAX_THREAD)).start();
+			listRun.add(new RunableCustom(allProducts, this,ii*(MAX_TOTAL_LINK/MAX_THREAD),(ii+1)*(MAX_TOTAL_LINK/MAX_THREAD)));
+			listRun.get(ii).start();
 		}
-		return allProducts;
+		while(true){	
+			if(isAllThreadDone(listRun)){
+				System.out.println("=====COMPLETE IN ====== :"+(System.currentTimeMillis()-startTime)/1000 + " s");
+				System.out.println("=====    TOTAL   ====== :"+allProducts.size() +"item");
+				return allProducts;
+			}
+		}
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package kiwi.vn.scrapy.service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -8,8 +10,11 @@ import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
+import kiwi.vn.srapy.utils.CsvUtils;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class ScrapyAbstract.
  */
@@ -40,13 +45,31 @@ public abstract class ScrapyAbstract {
 	 * @return the list
 	 */
 	public List<ProductCsv> processPage() {
-		 List<ProductCsv>	listProduct = getAllItem();
-			for (ProductCsv productCsv : listProduct) {
-				System.out.println(productCsv.getProductModel());
-			}
+		String fileName  =formatFileName(); 
+		List<ProductCsv>	listProduct = getAllItem();
+		try {
+			CsvUtils.writeToCsv(listProduct, fileName);
+		} catch (IOException e) {
+			log.debug(e.getMessage());
+		}
 		return listProduct;
 	}
 
+	/**
+	 * Format file name.
+	 *
+	 * @return the string
+	 */
+	private  String formatFileName() {
+		SimpleDateFormat sdf = new SimpleDateFormat("YYYY_MM_DD hh_mm_ss");
+		return "€iîñ_" + sdf.format(new Date()) + ".csv";
+	}
+
+	/**
+	 * Gets the all item.
+	 *
+	 * @return the all item
+	 */
 	protected abstract List<ProductCsv> getAllItem() ;
 
 	/**
@@ -66,6 +89,29 @@ public abstract class ScrapyAbstract {
 	public void setPageUrl(String pageUrl) {
 		this.pageUrl = pageUrl;
 	}
+	
+	/**
+	 * Gets the all item.
+	 *
+	 * @param start the start
+	 * @param end the end
+	 * @return the all item
+	 */
 	public abstract List<? extends ProductCsv> getAllItem(int start, int end) ;
+	
+	/**
+	 * Checks if is all thread done.
+	 *
+	 * @param listRun the list run
+	 * @return true, if is all thread done
+	 */
+	protected  boolean isAllThreadDone(List<RunableCustom> listRun) {
+		for (RunableCustom runableCustom : listRun) {
+			if (runableCustom.isRunning()) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }
