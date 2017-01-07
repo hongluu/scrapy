@@ -12,7 +12,6 @@ import org.jsoup.nodes.Document;
 
 import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
-import kiwi.vn.srapy.utils.CsvUtils;
 
 // TODO: Auto-generated Javadoc
 /**

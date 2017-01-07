@@ -259,6 +259,7 @@ public class ProductCsv {
 	 */
 	public String[] toCSV(){
 		return new String[]{siteName 
+			  , category
 			  , product 
 			  , productModel 
 			  , description 

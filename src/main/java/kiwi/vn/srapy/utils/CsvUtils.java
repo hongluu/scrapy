@@ -24,7 +24,7 @@ public class CsvUtils {
 		return fileName;
 	}
 	public static String appendToCsv(ProductCsv input , String fileName) {
-		
+		System.out.println("Write product: "+ input.getProductModel());
 		File file = new File("./", fileName);
 		CSVWriter writer;
 		try {
@@ -38,6 +38,27 @@ public class CsvUtils {
 		}
 		
 		return fileName;
+	}
+	
+public static String appendToCsv(List<ProductCsv> input , String fileName) {
+		
+	File file = new File("./", fileName);
+	CSVWriter writer;
+	ArrayList<String[]> outputData = new ArrayList<String[]>();
+	try {
+		writer = new CSVWriter(new FileWriter(file,true));
+		for (ProductCsv product: input){
+			System.out.println("Write product: "+ product.getProductModel());
+			outputData.add(product.toCSV());
+		}
+		writer.writeAll(outputData);
+		writer.close();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	
+	
+	return fileName;
 	}
 	
 }

@@ -1,2 +1,7 @@
 eclipse.preferences.version=1
+encoding//src/main/java=MS932
+encoding//src/main/java/kiwi/vn/scrapy/service/DenzaiScrapy.java=UTF-8
 encoding//src/main/java/kiwi/vn/scrapy/service/MonotaroScrapy.java=UTF-8
+encoding//src/main/java/kiwi/vn/scrapy/service/ScrapyAbstract.java=UTF-8
+encoding//src/main/resources=MS932
+encoding/<project>=MS932

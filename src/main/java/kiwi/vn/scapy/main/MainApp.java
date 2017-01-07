@@ -17,6 +17,7 @@ public class MainApp {
 		DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
 		denzaiScrapy.setFileName(fileName);
 		List<ProductCsv> listdenzai = denzaiScrapy.processPage();
+		
 		TarotoScrapy tarotoScrapy = new TarotoScrapy();
 		tarotoScrapy.setFileName(fileName);
 		List<ProductCsv> listtaroto = tarotoScrapy.processPage();
