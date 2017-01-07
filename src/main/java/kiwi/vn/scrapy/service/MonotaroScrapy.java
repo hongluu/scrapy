@@ -17,6 +17,7 @@ import com.opencsv.CSVWriter;
 
 import kiwi.vn.scapy.main.ProgressDialog;
 import kiwi.vn.scrapy.entity.ProductCsv;
+import kiwi.vn.srapy.utils.CsvUtils;
 
 
 public class MonotaroScrapy extends ScrapyAbstract{
@@ -124,14 +125,13 @@ public class MonotaroScrapy extends ScrapyAbstract{
 		
 		return ret;
 	}
-
+	private List<String> listProductCodePrepare = new ArrayList<>();
 	public void setListProductCodePrepare(List<ProductCsv> listdenzai, List<ProductCsv> listtaroto) {
-		List<String> output = new ArrayList<String>();
-		listdenzai.forEach(x -> output.add(x.getProductModel()));
+		listdenzai.forEach(x -> listProductCodePrepare.add(x.getProductModel()));
 		for (ProductCsv productCsv : listtaroto) {
 			String productCode = productCsv.getProductModel();
-			if(!isInList(productCode, output)){
-				output.add(productCode);
+			if(!isInList(productCode, listProductCodePrepare)){
+				listProductCodePrepare.add(productCode);
 			}
 		}
 		
@@ -159,8 +159,19 @@ public class MonotaroScrapy extends ScrapyAbstract{
 
 	@Override
 	protected List<ProductCsv> getAllItem() {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> allProductCode = this.listProductCodePrepare;
+		List<ProductCsv> output = new ArrayList<>();
+		for (String productModel : allProductCode) {
+			try {
+				List<ProductCsv> products = searchProduct(productModel);
+				products.forEach(x -> CsvUtils.appendToCsv(x, this.getFileName()));
+				output.addAll(products);
+			} catch (Exception e) {
+				e.printStackTrace();
+				continue;
+			}
+		}
+		return output;
 	}
 
 	@Override

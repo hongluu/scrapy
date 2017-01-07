@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 
 import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
+import kiwi.vn.srapy.utils.CsvUtils;
 import kiwi.vn.srapy.utils.FileUtils;
 
 public class TarotoScrapy extends ScrapyAbstract {
@@ -29,12 +30,14 @@ public class TarotoScrapy extends ScrapyAbstract {
 		this.allLink = getAllLinkFromSiteMap(SITE_MAP);
 		//this.allLink = FileUtils.getListLinkFromFile(TarotoScrapy.class.getClassLoader().getResource(FILE_LINK).getFile());
 		int numOfTotalLink =allLink.size();
+		System.out.println(numOfTotalLink);
 		List<RunableCustom> listRun= new ArrayList<RunableCustom>();
+		int nJump = numOfTotalLink/MAX_THREAD;
 		for (int ii = 0; ii < MAX_THREAD; ii++) {
 			if(ii == MAX_THREAD-1){
-				listRun.add(new RunableCustom(allProducts, this,ii*(numOfTotalLink/MAX_THREAD),numOfTotalLink));
+				listRun.add(new RunableCustom(allProducts, this,ii*(nJump),numOfTotalLink));
 			}else{
-				listRun.add(new RunableCustom(allProducts, this,ii*(numOfTotalLink/MAX_THREAD),(ii+1)*(numOfTotalLink/MAX_THREAD)));
+				listRun.add(new RunableCustom(allProducts, this,ii*(nJump),(ii+1)*(nJump)));
 			}
 		}
 		while(true){	
@@ -93,13 +96,14 @@ public class TarotoScrapy extends ScrapyAbstract {
 		}
 		product.setCategory(doc.select("a.crumbsList").text());
 		product.setPrice(
-				Integer.parseInt(doc.select("td.Item_price strong").text().replace("‰~iÅžj", "").replace(",", "")));
+				Integer.parseInt(doc.select("td.Item_price strong").text().replace("å††ï¼ˆç¨Žè¾¼", "").replace(",", "").replace(" ", "")));
 		product.setProductModel(doc.getElementsByAttributeValue("name", "keywords").attr("content"));
 		product.setProduct(doc.getElementsByAttributeValue("property", "og:site_name").attr("content"));
 		product.setQuantity(Integer.parseInt(doc.getElementsByAttributeValue("name", "F_item_num").val()));
 		product.setProductUrl(doc.getElementsByAttributeValue("property", "og:url").attr("content"));
 		System.out.println(product.getProductUrl());
 		product.setDescription(doc.select("p.syousai01").html());
+		CsvUtils.appendToCsv(product, this.getFileName());
 		return product;
 	}
 	//

@@ -25,6 +25,8 @@ public abstract class ScrapyAbstract {
 	
 	/** The page url. */
 	protected String pageUrl;
+	public ScrapyAbstract(){
+	}
 
 	/**
 	 * Gets the doc.
@@ -45,13 +47,7 @@ public abstract class ScrapyAbstract {
 	 * @return the list
 	 */
 	public List<ProductCsv> processPage() {
-		String fileName  =formatFileName(); 
 		List<ProductCsv>	listProduct = getAllItem();
-		try {
-			CsvUtils.writeToCsv(listProduct, fileName);
-		} catch (IOException e) {
-			log.debug(e.getMessage());
-		}
 		return listProduct;
 	}
 
@@ -62,7 +58,7 @@ public abstract class ScrapyAbstract {
 	 */
 	private  String formatFileName() {
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY_MM_DD hh_mm_ss");
-		return "€iîñ_" + sdf.format(new Date()) + ".csv";
+		return "Â�â‚¬Â•iÂ�Ã®Â•Ã±_" + sdf.format(new Date()) + ".csv";
 	}
 
 	/**
@@ -113,5 +109,12 @@ public abstract class ScrapyAbstract {
 		}
 		return true;
 	}
+	public String getFileName() {
+		return fileName;
+	}
 
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+	private String fileName;
 }

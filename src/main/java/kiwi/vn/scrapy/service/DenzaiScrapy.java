@@ -18,6 +18,7 @@ import org.jsoup.select.Elements;
 
 import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
+import kiwi.vn.srapy.utils.CsvUtils;
 
 /**
  * The Class DenzaiScrapy.
@@ -35,7 +36,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	
 	/** The Constant HOME_PAGE. */
 	private static final String HOME_PAGE = "www.denzai-net.jp";
-	private static final int MAX_THREAD =30;
+	private static final int MAX_THREAD =80;
 
 	/**
 	 * Instantiates a new denzai scrapy.
@@ -62,17 +63,17 @@ public class DenzaiScrapy extends ScrapyAbstract {
 			long startTime = System.currentTimeMillis();
 			try {
 				totalPage= getTotalPageLink(LINK_ALL_PRODUCTS + 1);
-				totalPage=100;
 				System.out.println(totalPage);
 			} catch (IOException e) {
 				log.debug(e.getMessage());
 			}
 			List<RunableCustom> listRun= new ArrayList<RunableCustom>();
+			int nJump =totalPage/MAX_THREAD;
 			for (int ii = 0; ii < MAX_THREAD; ii++) {
 				if(ii == MAX_THREAD-1){
-					listRun.add(new RunableCustom(output, this,ii*(totalPage/MAX_THREAD),totalPage));
+					listRun.add(new RunableCustom(output, this,ii*(nJump),totalPage));
 				}else{
-					listRun.add(new RunableCustom(output, this,ii*(totalPage/MAX_THREAD),(ii+1)*(totalPage/MAX_THREAD)));
+					listRun.add(new RunableCustom(output, this,ii*(nJump),(ii+1)*(nJump)));
 				}
 				listRun.get(ii).start();
 			}
@@ -114,7 +115,9 @@ public class DenzaiScrapy extends ScrapyAbstract {
 		Elements els = doc.select(".item_listA form");
 		for (Element element : els) {
 			if (element != null) {
-				listItems.add(getProduct(element));
+				ProductCsv product = getProduct(element);
+				listItems.add(product);
+				CsvUtils.appendToCsv(product, this.getFileName());
 			}
 		}
 		

@@ -23,4 +23,21 @@ public class CsvUtils {
 		writer.close();
 		return fileName;
 	}
+	public static String appendToCsv(ProductCsv input , String fileName) {
+		
+		File file = new File("./", fileName);
+		CSVWriter writer;
+		try {
+			writer = new CSVWriter(new FileWriter(file,true));
+			ArrayList<String[]> outputData = new ArrayList<String[]>();
+			outputData.add(input.toCSV());
+			writer.writeAll(outputData);
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return fileName;
+	}
+	
 }
