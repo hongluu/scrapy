@@ -36,7 +36,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	
 	/** The Constant HOME_PAGE. */
 	private static final String HOME_PAGE = "www.denzai-net.jp";
-	private static final int MAX_THREAD =80;
+	private static final int MAX_THREAD = 50;
 
 	/**
 	 * Instantiates a new denzai scrapy.
