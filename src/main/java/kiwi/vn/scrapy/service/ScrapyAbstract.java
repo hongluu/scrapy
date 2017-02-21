@@ -12,7 +12,6 @@ import org.jsoup.nodes.Document;
 
 import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
-import kiwi.vn.srapy.utils.CsvUtils;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -56,6 +55,7 @@ public abstract class ScrapyAbstract {
 	 *
 	 * @return the string
 	 */
+	@SuppressWarnings("unused")
 	private  String formatFileName() {
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY_MM_DD hh_mm_ss");
 		return "Â�â‚¬Â•iÂ�Ã®Â•Ã±_" + sdf.format(new Date()) + ".csv";
@@ -103,7 +103,7 @@ public abstract class ScrapyAbstract {
 	 */
 	protected  boolean isAllThreadDone(List<RunableCustom> listRun) {
 		for (RunableCustom runableCustom : listRun) {
-			if (runableCustom.isRunning()) {
+			if (runableCustom!= null && runableCustom.isRunning()) {
 				return false;
 			}
 		}
@@ -117,4 +117,26 @@ public abstract class ScrapyAbstract {
 		this.fileName = fileName;
 	}
 	private String fileName;
+	
+	public String getCategoryMonotaro(String productModel ) {
+		Document doc;
+		try {
+			doc = this.getDoc(productModel);
+			String linkDetail = doc.select(".first_item .txt a").attr("href");
+			doc = this.getDoc(linkDetail);
+			if(doc.select(".products_details").html().contains(productModel)){
+				return this.getC1ategoryMonotaro(doc);
+			}else{
+				return null;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+	
+	}
+
+	private String getC1ategoryMonotaro(Document doc) {
+		String cate = doc.select("cl_parents").text();
+		return cate.isEmpty()? null : cate;
+	}
 }

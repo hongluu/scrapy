@@ -63,7 +63,7 @@ public class MonotaroScrapy extends ScrapyAbstract{
 				String href = e1.attr("href");
 				String productName = e1.text();
 				
-				String category = element.select(".item_node_path").get(0).text().replaceAll("<.*>", "");
+				//String category = element.select(".item_node_path").get(0).text().replaceAll("<.*>", "");
 				
 				Document doc = Jsoup.connect("https://www.monotaro.com" + href)
 						.method(Connection.Method.GET).get();

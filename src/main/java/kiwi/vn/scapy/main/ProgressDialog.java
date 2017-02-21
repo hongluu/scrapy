@@ -10,6 +10,10 @@ import javax.swing.JLabel;
 import javax.swing.Timer;
 
 public class ProgressDialog extends JDialog{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1899245594822952112L;
 	private JLabel progresLabel;
 	private JButton closeButton;
 	private int flag = 3;
@@ -17,11 +21,11 @@ public class ProgressDialog extends JDialog{
 	
 	public ProgressDialog(){
 		super();
-		setTitle("¤•iî•ñûWƒc[ƒ‹");
+		setTitle("ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½cï¿½[ï¿½ï¿½");
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setSize(400, 120);
 		setLayout(null);
-		progresLabel = new JLabel("¤•iî•ñûW’†");
+		progresLabel = new JLabel("ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½");
 		progresLabel.setSize(new Dimension(380, 30));
 		progresLabel.setLocation(10, 10);
 		timer = new Timer(1000, new ActionListener() {
@@ -44,11 +48,11 @@ public class ProgressDialog extends JDialog{
 					ext = "......";
 					break;
 				}
-				progresLabel.setText("¤•iî•ñûW’†" + ext);
+				progresLabel.setText("ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½" + ext);
 			}
 		});
 		timer.start();
-		closeButton = new JButton("•Â‚¶‚é");
+		closeButton = new JButton("ï¿½Â‚ï¿½ï¿½ï¿½");
 		closeButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -64,6 +68,6 @@ public class ProgressDialog extends JDialog{
 	
 	public void stop(String filePath){
 		timer.stop();
-		progresLabel.setText("CSVƒtƒ@ƒCƒ‹F " + filePath);
+		progresLabel.setText("CSVï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½F " + filePath);
 	}
 }

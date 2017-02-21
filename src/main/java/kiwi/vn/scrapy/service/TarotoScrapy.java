@@ -10,13 +10,13 @@ import org.jsoup.select.Elements;
 import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
 import kiwi.vn.srapy.utils.CsvUtils;
-import kiwi.vn.srapy.utils.FileUtils;
 
 public class TarotoScrapy extends ScrapyAbstract {
 	private static final int MAX_THREAD = 5;
 	private static final String SITE_MAP = "http://www.taroto.jp/sitemap.xml";
 	private List<String> allLink;
-	//private static final String FILE_LINK = "itemTaro.txt";
+
+	// private static final String FILE_LINK = "itemTaro.txt";
 	public TarotoScrapy() {
 		this.log.debug("Start scrapy with taroto.jp page");
 		this.pageUrl = "http://www.taroto.jp";
@@ -28,22 +28,25 @@ public class TarotoScrapy extends ScrapyAbstract {
 		long startTime = System.currentTimeMillis();
 		List<ProductCsv> allProducts = new ArrayList<ProductCsv>();
 		this.allLink = getAllLinkFromSiteMap(SITE_MAP);
-		//this.allLink = FileUtils.getListLinkFromFile(TarotoScrapy.class.getClassLoader().getResource(FILE_LINK).getFile());
-		int numOfTotalLink =allLink.size();
+		// this.allLink =
+		// FileUtils.getListLinkFromFile(TarotoScrapy.class.getClassLoader().getResource(FILE_LINK).getFile());
+		int numOfTotalLink = allLink.size();
 		System.out.println(numOfTotalLink);
-		List<RunableCustom> listRun= new ArrayList<RunableCustom>();
-		int nJump = numOfTotalLink/MAX_THREAD;
+		List<RunableCustom> listRun = new ArrayList<RunableCustom>();
+		int nJump = numOfTotalLink / MAX_THREAD;
 		for (int ii = 0; ii < MAX_THREAD; ii++) {
-			if(ii == MAX_THREAD-1){
-				listRun.add(new RunableCustom(allProducts, this,ii*(nJump),numOfTotalLink));
-			}else{
-				listRun.add(new RunableCustom(allProducts, this,ii*(nJump),(ii+1)*(nJump)));
+			if (ii == MAX_THREAD - 1) {
+				listRun.add(new RunableCustom(allProducts, this, ii * (nJump), numOfTotalLink));
+			} else {
+				listRun.add(new RunableCustom(allProducts, this, ii * (nJump), (ii + 1) * (nJump)));
 			}
+			listRun.get(ii).start();
 		}
-		while(true){	
-			if(isAllThreadDone(listRun)){
-				System.out.println("=====COMPLETE IN ====== :"+(System.currentTimeMillis()-startTime)/1000 + " s");
-				System.out.println("=====    TOTAL   ====== :"+allProducts.size() +"item");
+		while (true) {
+			if (isAllThreadDone(listRun)) {
+				System.out
+						.println("=====COMPLETE IN ====== :" + (System.currentTimeMillis() - startTime) / 1000 + " s");
+				System.out.println("=====    TOTAL   ====== :" + allProducts.size() + "item");
 				return allProducts;
 			}
 		}
@@ -55,11 +58,11 @@ public class TarotoScrapy extends ScrapyAbstract {
 			Document doc = getDoc(url);
 			Elements AllLink = doc.select("loc");
 			for (Element element : AllLink) {
-				if(element.text().contains("/item/"))
-				output.add(element.text());
+				if (element.text().contains("/item/"))
+					output.add(element.text());
 			}
 		} catch (IOException e) {
-			return output ;
+			return output;
 		}
 		return output;
 	}
@@ -71,19 +74,22 @@ public class TarotoScrapy extends ScrapyAbstract {
 			String itemLink = getItemLink(i);
 			try {
 				Document doc = getDoc(itemLink);
-				listProducts.add(getProductPerLink(doc));
+				ProductCsv product = getProductPerLink(doc);
+				if (product != null && product.getProductName()!=null && !product.getProductName().contains("●枚入り")) {
+					listProducts.add(product);
+				}
 			} catch (IOException e) {
 				continue;
 			}
 		}
 		return listProducts;
 	}
-//	private boolean isExitedProduct(Document doc) {
-//		if (!MESSAGE_NOTFOUND.matches(doc.select("font[size='+2']>b").text())) {
-//			return true;
-//		}
-//		return false;
-//	}
+	// private boolean isExitedProduct(Document doc) {
+	// if (!MESSAGE_NOTFOUND.matches(doc.select("font[size='+2']>b").text())) {
+	// return true;
+	// }
+	// return false;
+	// }
 
 	private String getItemLink(int i) {
 		return allLink.get(i);
@@ -91,18 +97,21 @@ public class TarotoScrapy extends ScrapyAbstract {
 
 	private synchronized ProductCsv getProductPerLink(Document doc) throws IOException {
 		ProductCsv product = new ProductCsv(this.pageUrl);
-		if(doc.getElementsByAttributeValue("name", "keywords").attr("content")==""){
+		if (doc.getElementsByAttributeValue("name", "keywords").attr("content") == "") {
 			return null;
 		}
 		product.setCategory(doc.select("a.crumbsList").text());
-		product.setPrice(
-				Integer.parseInt(doc.select("td.Item_price strong").text().replace("円（税込", "").replace(",", "").replace(" ", "")));
-		product.setProductModel(doc.getElementsByAttributeValue("name", "keywords").attr("content"));
-		product.setProduct(doc.getElementsByAttributeValue("property", "og:site_name").attr("content"));
+		product.setPrice(Integer.parseInt(doc.select("td.Item_price strong").text().replaceAll("円（税込）", "").replaceAll(" ", "").replaceAll(",", "")));
+		String productcode =doc.getElementsByAttributeValue("name", "keywords").attr("content");
+		productcode.substring(0, productcode.indexOf("_"));
+		product.setProductModel(productcode);
+		product.setProductName(doc.getElementsByAttributeValue("property", "og:site_name").attr("content"));
 		product.setQuantity(Integer.parseInt(doc.getElementsByAttributeValue("name", "F_item_num").val()));
 		product.setProductUrl(doc.getElementsByAttributeValue("property", "og:url").attr("content"));
+		product.setImgUrl(doc.getElementsByAttributeValue("property", "og:image").attr("content"));
 		System.out.println(product.getProductUrl());
 		product.setDescription(doc.select("p.syousai01").html());
+		product.setBrand("未来工業");
 		CsvUtils.appendToCsv(product, this.getFileName());
 		return product;
 	}

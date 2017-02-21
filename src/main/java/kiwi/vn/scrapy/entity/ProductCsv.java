@@ -13,7 +13,7 @@ public class ProductCsv {
 	private String category;
 	
 	/** The product. */
-	private String product;
+	private String productName;
 	
 	/** The product model. */
 	private String productModel;
@@ -35,6 +35,12 @@ public class ProductCsv {
 	
 	/** The more info. */
 	private String moreInfo;
+	
+	private String imgUrl;
+	
+	private String brand;
+	
+	private String publishedDate;
 
 	/**
 	 * Instantiates a new product csv.
@@ -68,8 +74,8 @@ public class ProductCsv {
 	 *
 	 * @return the product
 	 */
-	public String getProduct() {
-		return product;
+	public String getProductName() {
+		return productName;
 	}
 
 	/**
@@ -77,8 +83,8 @@ public class ProductCsv {
 	 *
 	 * @param product the new product
 	 */
-	public void setProduct(String product) {
-		this.product = product;
+	public void setProductName(String product) {
+		this.productName = product;
 	}
 
 	/**
@@ -242,7 +248,7 @@ public class ProductCsv {
 			int quantity, String dateCreate, String productUrl, String moreInfo) {
 		super();
 		this.siteName = siteName;
-		this.product = product;
+		this.productName = product;
 		this.productModel = productModel;
 		this.description = description;
 		this.price = price;
@@ -258,14 +264,38 @@ public class ProductCsv {
 	 * @return the string[]
 	 */
 	public String[] toCSV(){
-		return new String[]{siteName 
-			  , product 
-			  , productModel 
-			  , description 
-			  , price + ""
-			  , (quantity < 0 ?  "" : quantity + "")
-			  , (dateCreate == null ? "": dateCreate) 
-			  , productUrl 
-			  , (moreInfo == null ? "": moreInfo)};
+		return new String[]{(category+" ").replaceAll(",", "")  
+			  , (productName+" ").replaceAll(",", "")  
+			  , (imgUrl+" ").replaceAll(",", "")  
+			  , (productModel+" ").replaceAll(",", "")  
+			  , (price + " ").replaceAll(",", "") 
+			  , (publishedDate+" ").replaceAll(",", "") 
+			  ,( description+" ").replaceAll(",", "") 
+			  , (productUrl+" ").replaceAll(",", "") 
+			  , brand};
+	}
+
+	public String getImgUrl() {
+		return imgUrl;
+	}
+
+	public void setImgUrl(String imgUrl) {
+		this.imgUrl = imgUrl;
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public String getPublishedDate() {
+		return publishedDate;
+	}
+
+	public void setPublishedDate(String publishedDate) {
+		this.publishedDate = publishedDate;
 	}
 }

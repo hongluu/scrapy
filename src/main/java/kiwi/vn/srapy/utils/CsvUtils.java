@@ -23,7 +23,7 @@ public class CsvUtils {
 		writer.close();
 		return fileName;
 	}
-	public static String appendToCsv(ProductCsv input , String fileName) {
+	public  static String appendToCsv(ProductCsv input , String fileName) {
 		
 		File file = new File("./", fileName);
 		CSVWriter writer;

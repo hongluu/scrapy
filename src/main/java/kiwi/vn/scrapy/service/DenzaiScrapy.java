@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -134,13 +134,15 @@ public class DenzaiScrapy extends ScrapyAbstract {
 		ProductCsv product = new ProductCsv(HOME_PAGE);
 			product.setPrice(Integer.parseInt(element.getElementsByAttributeValue("name", "price").val()));
 			product.setProductModel(element.getElementsByAttributeValue("name", "code").val());
-			product.setProduct(
+			product.setProductName(
 					product.getProductModel() + "|" + element.getElementsByAttributeValue("name", "shohin").val());
 			product.setQuantity(Integer.parseInt(element.getElementsByAttributeValue("name", "kazu").val()));
 			product.setProductUrl(element.getElementsByAttributeValue("name", "item_url").val());
 			product.setDescription(element.select("table tr:eq(3)").html());
 			product.setMoreInfo(element.select(".piece_text").text());
 			product.setCategory(element.select("table td:eq(3)").text());
+			product.setImgUrl(this.pageUrl+ element.select(".dt_img img").attr("src").substring(2));
+			product.setBrand("日東工業株式会社");
 			return product;
 	}
 
@@ -165,7 +167,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 */
 	private Document getDynamicDoc(String pageUrl) throws IOException {
 		HttpClient httpClient = HttpClientBuilder.create().build();
-		HttpPost request = new HttpPost(pageUrl);
+		HttpGet request = new HttpGet(pageUrl);
 		HttpResponse response = httpClient.execute(request);
 		BufferedReader in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 		String inputLine;
