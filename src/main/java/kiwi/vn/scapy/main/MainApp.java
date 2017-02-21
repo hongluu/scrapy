@@ -16,48 +16,39 @@ import kiwi.vn.srapy.utils.CsvUtils;
 
 public class MainApp {
 	private static ProgressDialog progressDlg = new ProgressDialog();
+
 	public static void main(String[] args) {
 		progressDlg.setVisible(true);
-		String fileName =formatFileName();
-<<<<<<< HEAD
-//		DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
-//		denzaiScrapy.setFileName(fileName);
-//		List<ProductCsv> listdenzai = denzaiScrapy.processPage();
-//		TarotoScrapy tarotoScrapy = new TarotoScrapy();
-//		tarotoScrapy.setFileName(fileName);
-//		List<ProductCsv> listtaroto = tarotoScrapy.processPage();
-//		MitsubishielectricScrapy mitsubishielectricScrapy = new MitsubishielectricScrapy();
-//		mitsubishielectricScrapy.setFileName(fileName);
-//		List<ProductCsv> listMitsubishi = mitsubishielectricScrapy.processPage();	
-//		try {
-//			CsvUtils.writeToCsv(listMitsubishi, fileName);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		String fileName = formatFileName();
+
+		// DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
+		// denzaiScrapy.setFileName(fileName);
+		// List<ProductCsv> listdenzai = denzaiScrapy.processPage();
+		// TarotoScrapy tarotoScrapy = new TarotoScrapy();
+		// tarotoScrapy.setFileName(fileName);
+		// List<ProductCsv> listtaroto = tarotoScrapy.processPage();
+		// MitsubishielectricScrapy mitsubishielectricScrapy = new
+		// MitsubishielectricScrapy();
+		// mitsubishielectricScrapy.setFileName(fileName);
+		// List<ProductCsv> listMitsubishi =
+		// mitsubishielectricScrapy.processPage();
+		// try {
+		// CsvUtils.writeToCsv(listMitsubishi, fileName);
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 		PanaScrapy panaScrapy = new PanaScrapy();
 		panaScrapy.processPage();
-//		MonotaroScrapy monoScrapy =new MonotaroScrapy();
-//		monoScrapy.setFileName(fileName);
-//		monoScrapy.setListProductCodePrepare(listdenzai,listtaroto);
-//		monoScrapy.processPage();
-=======
-		DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
-		denzaiScrapy.setFileName(fileName);
-		List<ProductCsv> listdenzai = denzaiScrapy.processPage();
-		
-		TarotoScrapy tarotoScrapy = new TarotoScrapy();
-		tarotoScrapy.setFileName(fileName);
-		List<ProductCsv> listtaroto = tarotoScrapy.processPage();
-		
-		MonotaroScrapy monoScrapy =new MonotaroScrapy();
-		monoScrapy.setFileName(fileName);
-		monoScrapy.setListProductCodePrepare(listdenzai,listtaroto);
-		monoScrapy.processPage();
->>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
-		progressDlg.stop("./" +fileName);
+		// MonotaroScrapy monoScrapy =new MonotaroScrapy();
+		// monoScrapy.setFileName(fileName);
+		// monoScrapy.setListProductCodePrepare(listdenzai,listtaroto);
+		// monoScrapy.processPage();
+
+		progressDlg.stop("./" + fileName);
 	}
-	private static  String formatFileName() {
+
+	private static String formatFileName() {
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY_MM_DD hh_mm_ss");
 		return "All_Product_" + sdf.format(new Date()) + ".csv";
 	}

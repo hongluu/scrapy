@@ -86,7 +86,7 @@ public class MonotaroScrapy extends ScrapyAbstract{
 					}
 					
 					ProductCsv product = new ProductCsv("モノタロウ", productName, productModel, desc.toString(), price, -1, delivery, href, "");
-					product.setCategory(category);
+					//product.setCategory(category);
 					ret.add(product);
 				}
 			}

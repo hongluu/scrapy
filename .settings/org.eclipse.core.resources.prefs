@@ -1,10 +1,11 @@
+=\=\=\=\=\=\=
+<<<<<<<=HEAD
+>>>>>>>=479c3a2dc10e49add605bd6855f27cb91733f2ef
 eclipse.preferences.version=1
 encoding//src/main/java=MS932
 encoding//src/main/java/kiwi/vn/scrapy/service/DenzaiScrapy.java=UTF-8
 encoding//src/main/java/kiwi/vn/scrapy/service/MonotaroScrapy.java=UTF-8
-<<<<<<< HEAD
-=======
 encoding//src/main/java/kiwi/vn/scrapy/service/ScrapyAbstract.java=UTF-8
+encoding//src/main/java/kiwi/vn/scrapy/service/TarotoScrapy.java=UTF-8
 encoding//src/main/resources=MS932
 encoding/<project>=MS932
->>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
