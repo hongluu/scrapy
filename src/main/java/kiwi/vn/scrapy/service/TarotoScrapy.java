@@ -12,13 +12,14 @@ import kiwi.vn.scrapy.entity.ProductCsv;
 import kiwi.vn.srapy.utils.CsvUtils;
 
 public class TarotoScrapy extends ScrapyAbstract {
-	private static final int MAX_THREAD = 5;
+	private static final int MAX_THREAD = 2;
 	private static final String SITE_MAP = "http://www.taroto.jp/sitemap.xml";
 	private List<String> allLink;
 
 	// private static final String FILE_LINK = "itemTaro.txt";
 	public TarotoScrapy() {
 		this.log.debug("Start scrapy with taroto.jp page");
+		System.out.println("Start scrapy with taroto.jp page");
 		this.pageUrl = "http://www.taroto.jp";
 
 	}
@@ -28,12 +29,21 @@ public class TarotoScrapy extends ScrapyAbstract {
 		long startTime = System.currentTimeMillis();
 		List<ProductCsv> allProducts = new ArrayList<ProductCsv>();
 		this.allLink = getAllLinkFromSiteMap(SITE_MAP);
+<<<<<<< HEAD
 		// this.allLink =
 		// FileUtils.getListLinkFromFile(TarotoScrapy.class.getClassLoader().getResource(FILE_LINK).getFile());
 		int numOfTotalLink = allLink.size();
 		System.out.println(numOfTotalLink);
 		List<RunableCustom> listRun = new ArrayList<RunableCustom>();
 		int nJump = numOfTotalLink / MAX_THREAD;
+=======
+		//this.allLink = FileUtils.getListLinkFromFile(TarotoScrapy.class.getClassLoader().getResource(FILE_LINK).getFile());
+		int numOfTotalLink =allLink.size();
+		numOfTotalLink=100;
+//		System.out.println(numOfTotalLink);
+		List<RunableCustom> listRun= new ArrayList<RunableCustom>();
+		int nJump = numOfTotalLink/MAX_THREAD;
+>>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
 		for (int ii = 0; ii < MAX_THREAD; ii++) {
 			if (ii == MAX_THREAD - 1) {
 				listRun.add(new RunableCustom(allProducts, this, ii * (nJump), numOfTotalLink));
@@ -42,11 +52,19 @@ public class TarotoScrapy extends ScrapyAbstract {
 			}
 			listRun.get(ii).start();
 		}
+<<<<<<< HEAD
 		while (true) {
 			if (isAllThreadDone(listRun)) {
 				System.out
 						.println("=====COMPLETE IN ====== :" + (System.currentTimeMillis() - startTime) / 1000 + " s");
 				System.out.println("=====    TOTAL   ====== :" + allProducts.size() + "item");
+=======
+		while(true){	
+			if(isAllThreadDone(listRun)){
+				System.out.println("=====TAROTO ====== :");
+				System.out.println("=====COMPLETE IN ====== :"+(System.currentTimeMillis()-startTime)/1000 + " s");
+				System.out.println("=====    TOTAL   ====== :"+allProducts.size() +"item");
+>>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
 				return allProducts;
 			}
 		}
@@ -62,7 +80,12 @@ public class TarotoScrapy extends ScrapyAbstract {
 					output.add(element.text());
 			}
 		} catch (IOException e) {
+<<<<<<< HEAD
 			return output;
+=======
+			System.out.println("Can not connect url: " +e);
+			return output ;
+>>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
 		}
 		return output;
 	}
@@ -75,10 +98,19 @@ public class TarotoScrapy extends ScrapyAbstract {
 			try {
 				Document doc = getDoc(itemLink);
 				ProductCsv product = getProductPerLink(doc);
+<<<<<<< HEAD
 				if (product != null && product.getProductName()!=null && !product.getProductName().contains("â—æžšå…¥ã‚Š")) {
+=======
+				if (product == null){
+					allLink.add(itemLink);
+					end++;
+				}else{
+>>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
 					listProducts.add(product);
 				}
 			} catch (IOException e) {
+				System.out.println("Can not connect page Taro");
+				i--;
 				continue;
 			}
 		}
@@ -96,6 +128,7 @@ public class TarotoScrapy extends ScrapyAbstract {
 	}
 
 	private synchronized ProductCsv getProductPerLink(Document doc) throws IOException {
+<<<<<<< HEAD
 		ProductCsv product = new ProductCsv(this.pageUrl);
 		if (doc.getElementsByAttributeValue("name", "keywords").attr("content") == "") {
 			return null;
@@ -106,12 +139,32 @@ public class TarotoScrapy extends ScrapyAbstract {
 		productcode.substring(0, productcode.indexOf("_"));
 		product.setProductModel(productcode);
 		product.setProductName(doc.getElementsByAttributeValue("property", "og:site_name").attr("content"));
+=======
+		ProductCsv product = new ProductCsv("ƒ^ƒƒg“d‹@");
+		if(doc.getElementsByAttributeValue("name", "keywords").attr("content")==""){
+			return null;
+		}
+		Elements catList = doc.select("a.crumbsList");
+		StringBuilder sb = new StringBuilder();
+		for (int ii = 0; ii < catList.size(); ii++){
+			sb.append(">" + catList.get(ii).text());
+		}
+		product.setCategory(sb.toString().replace(">TOP>",""));
+		product.setPrice(
+				Integer.parseInt(doc.select("td.Item_Price strong").text().replaceAll("[^0-9]", "")));
+		product.setProductModel(doc.getElementsByAttributeValue("name", "keywords").attr("content"));
+		product.setProduct(doc.getElementsByAttributeValue("property", "og:site_name").attr("content"));
+>>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
 		product.setQuantity(Integer.parseInt(doc.getElementsByAttributeValue("name", "F_item_num").val()));
 		product.setProductUrl(doc.getElementsByAttributeValue("property", "og:url").attr("content"));
 		product.setImgUrl(doc.getElementsByAttributeValue("property", "og:image").attr("content"));
 		System.out.println(product.getProductUrl());
+<<<<<<< HEAD
 		product.setDescription(doc.select("p.syousai01").html());
 		product.setBrand("æœªæ¥å·¥æ¥­");
+=======
+		product.setDescription(doc.select("p.syousai01").html().replace("<br><br>", "\n").replaceAll("<br>|</a>", "\n").replaceAll("</?span.*>|<a.*>", ""));
+>>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
 		CsvUtils.appendToCsv(product, this.getFileName());
 		return product;
 	}

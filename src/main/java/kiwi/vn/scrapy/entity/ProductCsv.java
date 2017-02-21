@@ -264,6 +264,7 @@ public class ProductCsv {
 	 * @return the string[]
 	 */
 	public String[] toCSV(){
+<<<<<<< HEAD
 		return new String[]{(category+" ").replaceAll(",", "")  
 			  , (productName+" ").replaceAll(",", "")  
 			  , (imgUrl+" ").replaceAll(",", "")  
@@ -297,5 +298,17 @@ public class ProductCsv {
 
 	public void setPublishedDate(String publishedDate) {
 		this.publishedDate = publishedDate;
+=======
+		return new String[]{siteName 
+			  , category
+			  , product 
+			  , productModel 
+			  , description 
+			  , price + ""
+			  , (quantity < 0 ?  "" : quantity + "")
+			  , (dateCreate == null ? "": dateCreate) 
+			  , productUrl 
+			  , (moreInfo == null ? "": moreInfo)};
+>>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
 	}
 }

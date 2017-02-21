@@ -19,6 +19,7 @@ public class MainApp {
 	public static void main(String[] args) {
 		progressDlg.setVisible(true);
 		String fileName =formatFileName();
+<<<<<<< HEAD
 //		DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
 //		denzaiScrapy.setFileName(fileName);
 //		List<ProductCsv> listdenzai = denzaiScrapy.processPage();
@@ -40,6 +41,20 @@ public class MainApp {
 //		monoScrapy.setFileName(fileName);
 //		monoScrapy.setListProductCodePrepare(listdenzai,listtaroto);
 //		monoScrapy.processPage();
+=======
+		DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
+		denzaiScrapy.setFileName(fileName);
+		List<ProductCsv> listdenzai = denzaiScrapy.processPage();
+		
+		TarotoScrapy tarotoScrapy = new TarotoScrapy();
+		tarotoScrapy.setFileName(fileName);
+		List<ProductCsv> listtaroto = tarotoScrapy.processPage();
+		
+		MonotaroScrapy monoScrapy =new MonotaroScrapy();
+		monoScrapy.setFileName(fileName);
+		monoScrapy.setListProductCodePrepare(listdenzai,listtaroto);
+		monoScrapy.processPage();
+>>>>>>> 479c3a2dc10e49add605bd6855f27cb91733f2ef
 		progressDlg.stop("./" +fileName);
 	}
 	private static  String formatFileName() {

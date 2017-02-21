@@ -35,8 +35,8 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	private static final String LINK_ALL_PRODUCTS = "http://www.denzai-net.jp/page_system/mod_itemlist.php?&page=";
 	
 	/** The Constant HOME_PAGE. */
-	private static final String HOME_PAGE = "www.denzai-net.jp";
-	private static final int MAX_THREAD =80;
+	private static final String HOME_PAGE = ".dÞƒlƒbƒg";
+	private static final int MAX_THREAD = 10;
 
 	/**
 	 * Instantiates a new denzai scrapy.
@@ -63,6 +63,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 			long startTime = System.currentTimeMillis();
 			try {
 				totalPage= getTotalPageLink(LINK_ALL_PRODUCTS + 1);
+				totalPage=100;
 				System.out.println(totalPage);
 			} catch (IOException e) {
 				log.debug(e.getMessage());
@@ -80,6 +81,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 			
 			while(true){	
 				if(isAllThreadDone(listRun)){
+					System.out.println("=====DENZAI ====== ");
 					System.out.println("=====COMPLETE IN ====== :"+(System.currentTimeMillis()-startTime)/1000 + " s");
 					System.out.println("=====    TOTAL   ====== :"+output.size() +"item");
 					return output;
@@ -95,6 +97,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 			output.addAll(getAllItemsPerPage(LINK_ALL_PRODUCTS + i));
 			} catch (Exception e) {
 				this.log.debug("Can not connect page" + i+ " cause:" +e.getMessage());
+				i--;
 				continue;
 			}
 		}
@@ -109,7 +112,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	private List<ProductCsv> getAllItemsPerPage(String url) throws IOException {
-		System.out.println(url);
+		//System.out.println(url);
 		List<ProductCsv> listItems = new ArrayList<ProductCsv>();
 		Document doc = getDynamicDoc(url);
 		Elements els = doc.select(".item_listA form");
@@ -130,7 +133,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	 * @param element the element
 	 * @return the product
 	 */
-	private synchronized ProductCsv getProduct(Element element) {
+	private  ProductCsv getProduct(Element element) {
 		ProductCsv product = new ProductCsv(HOME_PAGE);
 			product.setPrice(Integer.parseInt(element.getElementsByAttributeValue("name", "price").val()));
 			product.setProductModel(element.getElementsByAttributeValue("name", "code").val());
@@ -138,7 +141,7 @@ public class DenzaiScrapy extends ScrapyAbstract {
 					product.getProductModel() + "|" + element.getElementsByAttributeValue("name", "shohin").val());
 			product.setQuantity(Integer.parseInt(element.getElementsByAttributeValue("name", "kazu").val()));
 			product.setProductUrl(element.getElementsByAttributeValue("name", "item_url").val());
-			product.setDescription(element.select("table tr:eq(3)").html());
+			product.setDescription(element.select("table tr:eq(3)").html().replaceAll("<th>.*</th>|<td>|</td>", "").replace("<br>", "\n"));
 			product.setMoreInfo(element.select(".piece_text").text());
 			product.setCategory(element.select("table td:eq(3)").text());
 			product.setImgUrl(this.pageUrl+ element.select(".dt_img img").attr("src").substring(2));

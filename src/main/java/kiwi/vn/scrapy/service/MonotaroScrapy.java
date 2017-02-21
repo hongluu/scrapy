@@ -1,10 +1,6 @@
 package kiwi.vn.scrapy.service;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.jsoup.Connection;
@@ -13,45 +9,20 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.opencsv.CSVWriter;
 
-import kiwi.vn.scapy.main.ProgressDialog;
+import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
 import kiwi.vn.srapy.utils.CsvUtils;
 
 
 public class MonotaroScrapy extends ScrapyAbstract{
-	private static ProgressDialog progressDlg = new ProgressDialog();
-
-
-	public static void main(String[] args) throws Exception{
-		progressDlg.setVisible(true);
-		List<ProductCsv> output = new ArrayList<ProductCsv>();
-		// use for loop here
-		try{
-			
-			List<ProductCsv> ret = new MonotaroScrapy().searchProduct("600VCV2SQx2C");
-			output.addAll(ret);
-			new MonotaroScrapy().searchProduct("WT57511W");
-		}catch(Exception e){
-			System.out.println(e.getMessage());
-		}
-		
-		SimpleDateFormat sdf = new SimpleDateFormat("YYYY_MM_DD hh_mm_ss");
-		String fileName = "ﾂ鞘ぎﾂ品ﾂ湘ｮﾂ陛ｱ_" + sdf.format(new Date()) + ".csv";
-		File file = new File("./", fileName);
-		CSVWriter writer = new CSVWriter(new FileWriter(file));
-		ArrayList<String[]> outputData = new ArrayList<String[]>();
-		for (ProductCsv product: output){
-			outputData.add(product.toCSV());
-		}
-		writer.writeAll(outputData);
-		writer.close();
-		
-		progressDlg.stop("./" +fileName);
+	public MonotaroScrapy(){
+		super();
+		this.log.debug("Start scrapy with Monotaro page");
+		System.out.println("Start scrapy with Monotaro page");
+		this.pageUrl = "https://www.monotaro.com";
 	}
-	
-	private List<ProductCsv> searchProduct(String productModel) throws Exception{
+	private  List<ProductCsv> searchProduct(String productModel) throws Exception{
 		ArrayList<ProductCsv> ret = new ArrayList<ProductCsv>();
 //		Document document = Jsoup.connect("https://www.monotaro.com/s/?c=&q=600VCV2SQx2C&swc=0")
 		Document document = Jsoup.connect("https://www.monotaro.com/s/?c=&q=" + productModel + "&swc=0")
@@ -115,6 +86,7 @@ public class MonotaroScrapy extends ScrapyAbstract{
 					}
 					
 					ProductCsv product = new ProductCsv("モノタロウ", productName, productModel, desc.toString(), price, -1, delivery, href, "");
+					product.setCategory(category);
 					ret.add(product);
 				}
 			}
@@ -126,6 +98,7 @@ public class MonotaroScrapy extends ScrapyAbstract{
 		return ret;
 	}
 	private List<String> listProductCodePrepare = new ArrayList<>();
+	
 	public void setListProductCodePrepare(List<ProductCsv> listdenzai, List<ProductCsv> listtaroto) {
 		listdenzai.forEach(x -> listProductCodePrepare.add(x.getProductModel()));
 		for (ProductCsv productCsv : listtaroto) {
@@ -152,31 +125,46 @@ public class MonotaroScrapy extends ScrapyAbstract{
 		return null;
 	}
 
-	public List<ProductCsv> processPage() {
-		
-		return null;
-	}
 
 	@Override
 	protected List<ProductCsv> getAllItem() {
-		List<String> allProductCode = this.listProductCodePrepare;
-		List<ProductCsv> output = new ArrayList<>();
-		for (String productModel : allProductCode) {
-			try {
-				List<ProductCsv> products = searchProduct(productModel);
-				products.forEach(x -> CsvUtils.appendToCsv(x, this.getFileName()));
-				output.addAll(products);
-			} catch (Exception e) {
-				e.printStackTrace();
-				continue;
+		int MAX_THREAD = 10;
+		long startTime = System.currentTimeMillis();
+		List<ProductCsv> allProducts = new ArrayList<ProductCsv>();
+		int numOfTotalLink =this.listProductCodePrepare.size();
+		System.out.println("Total Item: " + numOfTotalLink);
+		List<RunableCustom> listRun= new ArrayList<RunableCustom>();
+		int nJump = numOfTotalLink/MAX_THREAD;
+		for (int ii = 0; ii < MAX_THREAD; ii++) {
+			if(ii == MAX_THREAD-1){
+				listRun.add(new RunableCustom(allProducts, this,ii*(nJump),numOfTotalLink));
+			}else{
+				listRun.add(new RunableCustom(allProducts, this,ii*(nJump),(ii+1)*(nJump)));
+			}
+			listRun.get(ii).start();
+		}
+		while(true){	
+			if(isAllThreadDone(listRun)){
+				System.out.println("=====COMPLETE IN ====== :"+(System.currentTimeMillis()-startTime)/1000 + " s");
+//				System.out.println("=====    TOTAL   ====== :"+allProducts.size() +"item");
+				return allProducts;
 			}
 		}
-		return output;
 	}
 
 	@Override
 	public List<? extends ProductCsv> getAllItem(int start, int end) {
-		// TODO Auto-generated method stub
-		return null;
+		List<ProductCsv> listProducts = new ArrayList<ProductCsv>();
+		for (int i = start; i < end; i++) {
+			String itemLink = listProductCodePrepare.get(i);
+			try {
+				 List<ProductCsv> productList = searchProduct(itemLink);
+				 CsvUtils.appendToCsv(productList, this.getFileName());
+				 listProducts.addAll(productList);
+			} catch (Exception e) {
+				continue;
+			}
+		}
+		return listProducts;
 	}
 }
