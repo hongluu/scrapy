@@ -258,6 +258,10 @@ public class ProductCsv {
 		this.moreInfo = moreInfo;
 	}
 	
+	public ProductCsv() {
+		// TODO Auto-generated constructor stub
+	}
+
 	/**
 	 * To CSV.
 	 *

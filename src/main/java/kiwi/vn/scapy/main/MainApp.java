@@ -19,27 +19,37 @@ public class MainApp {
 	public static void main(String[] args) {
 		progressDlg.setVisible(true);
 		String fileName =formatFileName();
-//		DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
-//		denzaiScrapy.setFileName(fileName);
-//		List<ProductCsv> listdenzai = denzaiScrapy.processPage();
-//		TarotoScrapy tarotoScrapy = new TarotoScrapy();
-//		tarotoScrapy.setFileName(fileName);
-//		List<ProductCsv> listtaroto = tarotoScrapy.processPage();
-//		MitsubishielectricScrapy mitsubishielectricScrapy = new MitsubishielectricScrapy();
-//		mitsubishielectricScrapy.setFileName(fileName);
-//		List<ProductCsv> listMitsubishi = mitsubishielectricScrapy.processPage();	
-//		try {
-//			CsvUtils.writeToCsv(listMitsubishi, fileName);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+
+		List<String> listProductCodeFactory = new ArrayList<>();
+		MitsubishielectricScrapy mitsubishielectricScrapy = new MitsubishielectricScrapy();
+		mitsubishielectricScrapy.setFileName(fileName);
+		
+		List<ProductCsv> listMitsubishi = mitsubishielectricScrapy.processPage();	
+		for (ProductCsv productCsv : listMitsubishi) {
+			CsvUtils.appendToCsv(productCsv, fileName);
+			listProductCodeFactory.add(productCsv.getProductModel());
+		}
+		System.out.println("Complete misubishi :"+listMitsubishi.size());
 		PanaScrapy panaScrapy = new PanaScrapy();
-		panaScrapy.processPage();
-//		MonotaroScrapy monoScrapy =new MonotaroScrapy();
-//		monoScrapy.setFileName(fileName);
-//		monoScrapy.setListProductCodePrepare(listdenzai,listtaroto);
-//		monoScrapy.processPage();
+		panaScrapy.setFileName(fileName);
+		List<ProductCsv> listPana = panaScrapy.processPage();
+		for (ProductCsv productCsv : listPana) {
+			CsvUtils.appendToCsv(productCsv, fileName);
+			listProductCodeFactory.add(productCsv.getProductModel());
+		}
+		System.out.println("Complete pana :"+listPana.size());
+		
+//		// 2 trang nay ghi csv ben trong
+		DenzaiScrapy denzaiScrapy = new DenzaiScrapy();
+		denzaiScrapy.setFileName(fileName);
+		denzaiScrapy.setListProductCodeExclude(listProductCodeFactory);
+		List<ProductCsv> listdenzai = denzaiScrapy.processPage();
+		
+		TarotoScrapy tarotoScrapy = new TarotoScrapy();
+		tarotoScrapy.setFileName(fileName);
+		tarotoScrapy.setListProductCodeExclude(listProductCodeFactory);
+		List<ProductCsv> listtaroto = tarotoScrapy.processPage();
+
 		progressDlg.stop("./" +fileName);
 	}
 	private static  String formatFileName() {

@@ -1,8 +1,10 @@
 package kiwi.vn.srapy.utils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +16,7 @@ public class CsvUtils {
 	public static String writeToCsv(List<ProductCsv> output,String fileName) throws IOException {
 		
 		File file = new File("./", fileName);
-		CSVWriter writer = new CSVWriter(new FileWriter(file));
+		CSVWriter writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(file, true), "UTF-8"));
 		ArrayList<String[]> outputData = new ArrayList<String[]>();
 		for (ProductCsv product: output){
 			outputData.add(product.toCSV());
@@ -28,7 +30,7 @@ public class CsvUtils {
 		File file = new File("./", fileName);
 		CSVWriter writer;
 		try {
-			writer = new CSVWriter(new FileWriter(file,true));
+			writer =  new CSVWriter(new OutputStreamWriter(new FileOutputStream(file, true), "UTF-8"));
 			ArrayList<String[]> outputData = new ArrayList<String[]>();
 			outputData.add(input.toCSV());
 			writer.writeAll(outputData);

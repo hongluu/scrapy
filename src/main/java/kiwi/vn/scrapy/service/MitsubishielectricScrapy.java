@@ -103,7 +103,7 @@ public class MitsubishielectricScrapy extends ScrapyAbstract {
 				return category;
 			}
 			if (count > 1) {
-				category += element.text() + " > ";
+				category += element.text() + ">";
 			}
 			count++;
 		}
@@ -147,19 +147,9 @@ public class MitsubishielectricScrapy extends ScrapyAbstract {
 			product.setCategory(categoryMorotaro);
 		}
 		
+		String productUrl= this.pageUrl + element.select("h3 a").attr("href");
+		String productName = this.getProductNameBy(productUrl);
 		
-		String productName = element.select(".txt_detail").html();
-		try{
-			if(!StringUtils.isEmpty(productName)){
-				if(productName.startsWith("<span>")){
-					productName=productModel;
-				}else{
-					productName = productModel + "|"+productName.replaceAll("<br>.*", "");
-				}
-			}
-		}catch(Exception e){
-			productName="";
-		}
 		product.setProductName(productName);
 		product.setPublishedDate(element.select(".txt_detail span:contains(発売日)").text().replaceAll("発売日:", ""));
 
@@ -170,10 +160,16 @@ public class MitsubishielectricScrapy extends ScrapyAbstract {
 			product.setDescription("");
 		}
 		
-		product.setProductUrl(this.pageUrl + element.select("h3 a").attr("href"));
+		product.setProductUrl(productUrl);
 		product.setBrand("三菱電機");
 		//CsvUtils.appendToCsv(product, this.getFileName());
 		return product;
+	}
+
+	public String getProductNameBy(String productUrl) throws IOException {
+		Document doc=this.getDoc(productUrl);
+		String name = doc.select("#contents_main .hx_lv1 span").text();
+		return name;
 	}
 
 	private String getProductDetail(String productDetailLink) throws IOException {

@@ -3,6 +3,8 @@ package kiwi.vn.scrapy.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -15,12 +17,11 @@ public class TarotoScrapy extends ScrapyAbstract {
 	private static final int MAX_THREAD = 5;
 	private static final String SITE_MAP = "http://www.taroto.jp/sitemap.xml";
 	private List<String> allLink;
-
+	private List<String> listProductCodeExclude;
 	// private static final String FILE_LINK = "itemTaro.txt";
 	public TarotoScrapy() {
 		this.log.debug("Start scrapy with taroto.jp page");
 		this.pageUrl = "http://www.taroto.jp";
-
 	}
 
 	@Override
@@ -100,9 +101,14 @@ public class TarotoScrapy extends ScrapyAbstract {
 		if (doc.getElementsByAttributeValue("name", "keywords").attr("content") == "") {
 			return null;
 		}
-		product.setCategory(doc.select("a.crumbsList").text());
+		
 		product.setPrice(Integer.parseInt(doc.select("td.Item_price strong").text().replaceAll("円（税込）", "").replaceAll(" ", "").replaceAll(",", "")));
 		String productcode =doc.getElementsByAttributeValue("name", "keywords").attr("content");
+		String category = this.getCategoryMonotaro(productcode);
+		if(StringUtils.isEmpty(category)){
+			category=doc.select("a.crumbsList").text();
+		}
+		product.setCategory(category);
 		productcode.substring(0, productcode.indexOf("_"));
 		product.setProductModel(productcode);
 		product.setProductName(doc.getElementsByAttributeValue("property", "og:site_name").attr("content"));
@@ -112,6 +118,9 @@ public class TarotoScrapy extends ScrapyAbstract {
 		System.out.println(product.getProductUrl());
 		product.setDescription(doc.select("p.syousai01").html());
 		product.setBrand("未来工業");
+		if(getListProductCodeExclude().contains(productcode)){
+			return new ProductCsv();
+		}
 		CsvUtils.appendToCsv(product, this.getFileName());
 		return product;
 	}
@@ -223,4 +232,12 @@ public class TarotoScrapy extends ScrapyAbstract {
 	// }
 	// return output;
 	// }
+
+	public List<String> getListProductCodeExclude() {
+		return listProductCodeExclude;
+	}
+
+	public void setListProductCodeExclude(List<String> listProductCodeExclude) {
+		this.listProductCodeExclude = listProductCodeExclude;
+	}
 }

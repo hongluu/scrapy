@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -38,13 +39,16 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	private static final String HOME_PAGE = "www.denzai-net.jp";
 	private static final int MAX_THREAD =80;
 
+	private List<String> listProductCodeExclude;
+
 	/**
 	 * Instantiates a new denzai scrapy.
 	 */
+	
+	
 	public DenzaiScrapy() {
 		this.log.debug("Start scrapy with denzai-net.jp page");
 		this.pageUrl = "http://www.denzai-net.jp";
-
 	}
 
 	/* (non-Javadoc)
@@ -133,16 +137,25 @@ public class DenzaiScrapy extends ScrapyAbstract {
 	private synchronized ProductCsv getProduct(Element element) {
 		ProductCsv product = new ProductCsv(HOME_PAGE);
 			product.setPrice(Integer.parseInt(element.getElementsByAttributeValue("name", "price").val()));
-			product.setProductModel(element.getElementsByAttributeValue("name", "code").val());
+			String productcode =element.getElementsByAttributeValue("name", "code").val();
+			product.setProductModel(productcode);
 			product.setProductName(
 					product.getProductModel() + "|" + element.getElementsByAttributeValue("name", "shohin").val());
 			product.setQuantity(Integer.parseInt(element.getElementsByAttributeValue("name", "kazu").val()));
 			product.setProductUrl(element.getElementsByAttributeValue("name", "item_url").val());
 			product.setDescription(element.select("table tr:eq(3)").html());
 			product.setMoreInfo(element.select(".piece_text").text());
-			product.setCategory(element.select("table td:eq(3)").text());
+			
+			String category = this.getCategoryMonotaro(productcode);
+			if(StringUtils.isEmpty(category)){
+				category=element.select("table td:eq(3)").text();
+			}
+			product.setCategory(category);
 			product.setImgUrl(this.pageUrl+ element.select(".dt_img img").attr("src").substring(2));
 			product.setBrand("日東工業株式会社");
+			if(this.listProductCodeExclude.contains(productcode)){
+				return new ProductCsv();
+			}
 			return product;
 	}
 
@@ -180,6 +193,14 @@ public class DenzaiScrapy extends ScrapyAbstract {
 		JSONObject json = new JSONObject(responseString.toString());
 
 		return Jsoup.parse(json.getString("html"));
+	}
+
+	public List<String> getListProductCodeExclude() {
+		return listProductCodeExclude;
+	}
+
+	public void setListProductCodeExclude(List<String> listProductCodeExclude) {
+		this.listProductCodeExclude = listProductCodeExclude;
 	}
 
 	

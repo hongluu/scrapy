@@ -9,6 +9,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import kiwi.vn.scapy.async.RunableCustom;
 import kiwi.vn.scrapy.entity.ProductCsv;
@@ -120,10 +122,11 @@ public abstract class ScrapyAbstract {
 	
 	public String getCategoryMonotaro(String productModel ) {
 		Document doc;
-		try {
-			doc = this.getDoc(productModel);
+		try {	
+			String url = "https://www.monotaro.com/s/?c=&bn=&pn=&mn=&mp="+productModel+"&pf=&pt=&q=";
+			doc = this.getDoc(url);
 			String linkDetail = doc.select(".first_item .txt a").attr("href");
-			doc = this.getDoc(linkDetail);
+			doc = this.getDoc("https://www.monotaro.com/"+linkDetail);
 			if(doc.select(".products_details").html().contains(productModel)){
 				return this.getC1ategoryMonotaro(doc);
 			}else{
@@ -136,7 +139,16 @@ public abstract class ScrapyAbstract {
 	}
 
 	private String getC1ategoryMonotaro(Document doc) {
-		String cate = doc.select("cl_parents").text();
-		return cate.isEmpty()? null : cate;
+		Elements cateEls = doc.select(".cl_parents a");
+		String cat = "";
+		int count = 0;
+		for (Element element : cateEls) {
+			if(count == cateEls.size()-1 ){
+				cat= cat +element.text();
+			}
+			cat= cat +element.text()+ ">";
+			count++;
+		}
+		return cateEls.size()==0? null : cat;
 	}
 }
